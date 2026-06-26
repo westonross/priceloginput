@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fuel price log</title>
+<title>Price Observations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛽</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231a3a7a'/><text x='50' y='72' font-size='62' text-anchor='middle'>⛽</text></svg>">
 <style>
   :root{
     --bg:#edf2fb; --card:#ffffff; --border:#c0cce8; --border-strong:#92a8d0;
@@ -19,12 +21,36 @@
     font-size:15px; line-height:1.4;
   }
   .wrap{max-width:420px;margin:0 auto;}
-  h1{font-size:17px;font-weight:700;margin:0 0 10px;color:var(--btn-primary);}
 
-  .footnav{text-align:center;padding:14px 0 20px;font-size:13px;color:var(--text-muted);}
-  .footnav a{color:var(--text-secondary);text-decoration:none;font-weight:600;padding:0 6px;}
-  .footnav a.active{color:var(--tab-active);}
-  .footnav a:hover{text-decoration:underline;}
+  /* header */
+  .appheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .appheader h1{font-size:17px;font-weight:700;margin:0;color:var(--btn-primary);}
+  .hdrbtns{display:flex;gap:6px;align-items:center;}
+  .hdrbtn{
+    width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+    background:var(--card);color:var(--text-secondary);font-size:18px;
+    cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .hdrbtn:active{background:var(--accent-bg);}
+
+  /* hamburger dropdown */
+  .menu-wrap{position:relative;}
+  .menu-drop{
+    display:none;position:absolute;top:42px;right:0;
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:160px;z-index:200;overflow:hidden;
+  }
+  .menu-drop.open{display:block;}
+  .menu-item{
+    display:block;width:100%;padding:12px 16px;text-align:left;
+    border:none;border-bottom:1px solid var(--border);background:none;
+    font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  }
+  .menu-item:last-child{border-bottom:none;}
+  .menu-item.active{color:var(--tab-active);}
+  .menu-item:active{background:var(--accent-bg);}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:10px;
     padding:12px;margin-bottom:8px;}
@@ -82,7 +108,20 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>⛽ Fuel Price Log</h1>
+  <div class="appheader">
+    <h1>⛽ Price Observations</h1>
+    <div class="hdrbtns">
+      <button class="hdrbtn" id="refreshbtn" title="Refresh">↻</button>
+      <div class="menu-wrap">
+        <button class="hdrbtn" id="menubtn" title="Menu">☰</button>
+        <div class="menu-drop" id="menu-drop">
+          <button class="menu-item active" data-tab="log">Log price</button>
+          <button class="menu-item" data-tab="stations">Stations 📍</button>
+          <button class="menu-item" data-tab="history">Recent</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="panel-log">
     <div class="card">
@@ -93,7 +132,10 @@
     <div class="card">
       <label class="lbl">Date and hour</label>
       <div class="row">
-        <input type="date" id="obsdate" style="flex:1;">
+        <div style="flex:1;position:relative;">
+          <div id="obsdate-display" style="height:38px;padding:0 9px;border:1px solid var(--border-strong);border-radius:var(--radius);background:#fff;color:var(--text);font-size:15px;display:flex;align-items:center;pointer-events:none;"></div>
+          <input type="date" id="obsdate" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;">
+        </div>
         <select id="obshour" style="flex:1;"></select>
       </div>
     </div>
@@ -185,11 +227,6 @@
     <div id="history-list"><p class="muted">Loading...</p></div>
   </div>
 
-  <div class="footnav">
-    <a href="#" class="active" data-tab="log">Log price</a> ·
-    <a href="#" data-tab="stations">Stations 📍</a> ·
-    <a href="#" data-tab="history">Recent</a>
-  </div>
 </div>
 
 
@@ -344,10 +381,15 @@ function populateHours(){
   sel.value = defaultHour;
 }
 
+function setDateDisplay(isoDate){
+  document.getElementById('obsdate-display').textContent = fmtDateDisplay(isoDate);
+}
+
 function setDefaultDate(){
   var now = new Date();
   defaultDateISO = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   document.getElementById('obsdate').value = defaultDateISO;
+  setDateDisplay(defaultDateISO);
 }
 
 document.getElementById('obsdate').addEventListener('change', function(){
@@ -356,8 +398,10 @@ document.getElementById('obsdate').addEventListener('change', function(){
   if(isFuture(dateVal, hourVal)){
     alert('Cannot log a future date/time. Please observe and record at the time of visit.');
     this.value = defaultDateISO;
+    setDateDisplay(defaultDateISO);
     return;
   }
+  setDateDisplay(dateVal);
   if(dateVal !== defaultDateISO){
     alert('Please record future entries at time of observation.');
   }
@@ -474,19 +518,32 @@ function switchTab(name){
   ['log','stations','history'].forEach(function(t){
     document.getElementById('panel-'+t).style.display = t===name?'block':'none';
   });
-  document.querySelectorAll('.footnav a[data-tab]').forEach(function(a){
-    a.classList.toggle('active', a.getAttribute('data-tab')===name);
+  document.querySelectorAll('.menu-item[data-tab]').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-tab')===name);
   });
   if(name==='stations') renderStationList();
   if(name==='history') renderHistory();
   if(name==='log') renderStationSelect();
 }
 
-document.querySelectorAll('.footnav a[data-tab]').forEach(function(a){
-  a.addEventListener('click', function(e){
-    e.preventDefault();
-    switchTab(a.getAttribute('data-tab'));
+document.querySelectorAll('.menu-item[data-tab]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    switchTab(btn.getAttribute('data-tab'));
+    document.getElementById('menu-drop').classList.remove('open');
   });
+});
+
+document.getElementById('menubtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('menu-drop').classList.toggle('open');
+});
+
+document.addEventListener('click', function(){
+  document.getElementById('menu-drop').classList.remove('open');
+});
+
+document.getElementById('refreshbtn').addEventListener('click', function(){
+  location.reload();
 });
 
 document.getElementById('resetallbtn').addEventListener('click', function(){
