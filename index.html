@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fuel price log</title>
+<style>
+  :root{
+    --bg:#f4f3ef; --card:#ffffff; --border:#e0ddd3; --border-strong:#c9c5b8;
+    --text:#1f1e1b; --text-secondary:#5f5e58; --text-muted:#8c897e;
+    --accent-bg:#e6f1fb; --accent-border:#85b7eb; --accent-text:#0c447c;
+    --danger:#a32d2d; --success:#3b6d11; --radius:8px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:16px; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:16px; line-height:1.5;
+  }
+  .wrap{max-width:420px;margin:0 auto;}
+  h1{font-size:18px;font-weight:600;margin:0 0 16px;}
+  .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .tabbtn{flex:1;background:none;border:none;border-bottom:2px solid transparent;
+    padding:10px 0;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;}
+  .tabbtn.active{border-bottom-color:var(--text);color:var(--text);}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:16px;margin-bottom:12px;}
+  label.lbl{display:block;font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:6px;}
+  .optTag{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px;}
+  input[type=text], input[type=date], select, textarea{
+    width:100%;height:40px;padding:0 10px;border:1px solid var(--border-strong);
+    border-radius:var(--radius);background:#fff;color:var(--text);font-size:15px;
+    -webkit-appearance:none; appearance:none;
+  }
+  input:disabled{background:#f0efe9;color:var(--text-muted);}
+  .row{display:flex;gap:8px;}
+  .gradeBlock{padding:14px 0;border-bottom:1px solid var(--border);}
+  .gradeBlock:first-child{padding-top:0;}
+  .gradeBlock:last-child{border-bottom:none;}
+  .gradeName{font-size:14px;font-weight:600;margin-bottom:10px;}
+  .digitCols{display:flex;align-items:center;justify-content:center;gap:2px;}
+  .digitCol{display:flex;flex-direction:column;align-items:center;gap:6px;width:48px;}
+  .digitBtn{width:40px;height:36px;border-radius:var(--radius);border:1px solid var(--border-strong);
+    background:#fafaf7;font-size:18px;font-weight:600;cursor:pointer;color:var(--text);}
+  .digitBtn:active{background:var(--accent-bg);}
+  .digitVal{font-size:26px;font-weight:600;font-family:ui-monospace,monospace;width:40px;text-align:center;}
+  .sep{font-size:26px;font-weight:600;color:var(--text-muted);align-self:center;margin-top:38px;}
+  .dollarSign{font-size:18px;color:var(--text-muted);align-self:center;margin-top:42px;margin-right:2px;}
+  .volpill{flex:1;padding:10px 4px;text-align:center;border:1px solid var(--border-strong);
+    border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;background:#fff;}
+  .volpill.sel{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent-text);}
+  .smallbtn{font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:2px 4px;}
+  .bigbtn{width:100%;background:var(--text);color:#fff;border:none;padding:13px;
+    font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;}
+  .bigbtn:disabled{opacity:0.5;}
+  .msg{text-align:center;font-size:13px;margin-top:10px;min-height:18px;}
+  .msg.err{color:var(--danger);}
+  .msg.ok{color:var(--success);}
+  .stationrow, .histrow{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .stationrow:last-child, .histrow:last-child{border-bottom:none;}
+  .muted{color:var(--text-muted);}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border-strong);
+    border-top-color:var(--text);border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fuel price log</h1>
+
+  <div class="tabs">
+    <button class="tabbtn active" data-tab="log">Log price</button>
+    <button class="tabbtn" data-tab="stations">Stations</button>
+    <button class="tabbtn" data-tab="history">Recent</button>
+  </div>
+
+  <div id="panel-log">
+    <div class="card">
+      <label class="lbl">Your name</label>
+      <input type="text" id="username" placeholder="e.g. jsmith" autocomplete="name">
+    </div>
+
+    <div class="card">
+      <label class="lbl">Date and hour</label>
+      <div class="row">
+        <input type="date" id="obsdate" style="flex:1;">
+        <select id="obshour" style="flex:1;"></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="lbl">Station</label>
+      <select id="station" style="width:100%;">
+        <option value="">Loading stations...</option>
+      </select>
+      <p style="font-size:12px;color:var(--text-muted);margin:6px 0 0;">Don't see it? Add it in the Stations tab.</p>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <label class="lbl" style="margin:0;">Prices</label>
+        <button class="smallbtn" id="resetallbtn">Reset all</button>
+      </div>
+      <div id="price-grades"></div>
+    </div>
+
+    <div class="card">
+      <label class="lbl">Traffic volume</label>
+      <div id="volume-pills" class="row"></div>
+    </div>
+
+    <button class="bigbtn" id="submitbtn">Submit observation</button>
+    <p class="msg" id="submitmsg"></p>
+  </div>
+
+  <div id="panel-stations" style="display:none;">
+    <div class="card">
+      <label class="lbl">Station name</label>
+      <input type="text" id="st-name" placeholder="e.g. Terrible's" style="margin-bottom:10px;">
+
+      <label class="lbl">Fuel brand <span class="optTag">optional</span></label>
+      <input type="text" id="st-brand" placeholder="e.g. Chevron" style="margin-bottom:14px;">
+
+      <label class="lbl">Address</label>
+      <input type="text" id="st-addr1" placeholder="e.g. 4503 Paradise Rd" style="margin-bottom:10px;">
+
+      <div class="row" style="margin-bottom:10px;">
+        <input type="text" id="st-city" placeholder="City" style="flex:2;">
+        <input type="text" id="st-state" placeholder="State" style="flex:1;">
+        <input type="text" id="st-zip" placeholder="Zip" style="flex:1;">
+      </div>
+
+      <label class="lbl">Cross streets</label>
+      <input type="text" id="st-cross1" placeholder="Street 1" disabled style="margin-bottom:10px;">
+      <input type="text" id="st-cross2" placeholder="Street 2 (optional)" style="margin-bottom:14px;">
+
+      <button class="bigbtn" id="addstationbtn">Add station</button>
+      <p class="msg" id="stationmsg"></p>
+    </div>
+    <label class="lbl" style="margin-bottom:8px;display:block;">Existing stations</label>
+    <div id="station-list"><p class="muted">Loading...</p></div>
+  </div>
+
+  <div id="panel-history" style="display:none;">
+    <label class="lbl" style="margin-bottom:8px;display:block;">Last 20 submissions</label>
+    <div id="history-list"><p class="muted">Loading...</p></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURE THIS: paste your Apps Script Web App URL here.
+// See SETUP.md for how to get this value.
+// ============================================================
+var API_URL = 'https://script.google.com/macros/s/AKfycbzMmI5nedSYT57NZmPE2BKR_cQDoKc5FoBhKzzy1jUwqSnzhewvPy8MXiWqk3SIETszZQ/exec';
+
+var GRADES = [
+  {key:'unleaded', label:'Unleaded'},
+  {key:'mid', label:'Mid'},
+  {key:'super', label:'Super'},
+  {key:'diesel', label:'Diesel'}
+];
+var VOLUMES = [
+  {key:'light', label:'Light', sub:'0-3 cars'},
+  {key:'medium', label:'Medium', sub:'4-6 cars'},
+  {key:'high', label:'High', sub:'7+ cars'}
+];
+
+var prices = {};
+GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
+var selectedVolume = null;
+var stationsCache = [];
+
+function rollover(v){
+  if(v > 9) return 0;
+  if(v < 0) return 9;
+  return v;
+}
+function priceValue(g){
+  var p = prices[g];
+  return p.dollar + p.dime * 0.1 + p.cent * 0.01;
+}
+function fmtPrice(v){
+  var n = parseFloat(v);
+  if(isNaN(n)) return '$0.00';
+  return '$' + n.toFixed(2);
+}
+
+function apiGet(action, params){
+  var url = API_URL + '?action=' + encodeURIComponent(action);
+  if(params){
+    Object.keys(params).forEach(function(k){
+      url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    });
+  }
+  return fetch(url).then(function(r){ return r.json(); });
+}
+function apiPost(action, payload){
+  var body = Object.assign({action: action}, payload);
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); });
+}
+
+function renderPriceGrades(){
+  var el = document.getElementById('price-grades');
+  el.innerHTML = GRADES.map(function(g){
+    var p = prices[g.key];
+    return '' +
+    '<div class="gradeBlock" data-grade="'+g.key+'">' +
+      '<div class="gradeName">'+g.label+'</div>' +
+      '<div class="digitCols">' +
+        '<span class="dollarSign">$</span>' +
+        '<div class="digitCol">' +
+          '<button class="digitBtn" data-part="dollar" data-dir="1">+</button>' +
+          '<span class="digitVal" data-part="dollar">'+p.dollar+'</span>' +
+          '<button class="digitBtn" data-part="dollar" data-dir="-1">-</button>' +
+        '</div>' +
+        '<span class="sep">.</span>' +
+        '<div class="digitCol">' +
+          '<button class="digitBtn" data-part="dime" data-dir="1">+</button>' +
+          '<span class="digitVal" data-part="dime">'+p.dime+'</span>' +
+          '<button class="digitBtn" data-part="dime" data-dir="-1">-</button>' +
+        '</div>' +
+        '<div class="digitCol">' +
+          '<button class="digitBtn" data-part="cent" data-dir="1">+</button>' +
+          '<span class="digitVal" data-part="cent">'+p.cent+'</span>' +
+          '<button class="digitBtn" data-part="cent" data-dir="-1">-</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  el.querySelectorAll('.digitBtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var block = btn.closest('.gradeBlock');
+      var grade = block.getAttribute('data-grade');
+      var part = btn.getAttribute('data-part');
+      var dir = parseInt(btn.getAttribute('data-dir'));
+      prices[grade][part] = rollover(prices[grade][part] + dir);
+      block.querySelector('.digitVal[data-part="'+part+'"]').textContent = prices[grade][part];
+    });
+  });
+}
+
+function renderVolumePills(){
+  var el = document.getElementById('volume-pills');
+  el.innerHTML = VOLUMES.map(function(v){
+    return '<div class="volpill" data-vol="'+v.key+'"><div>'+v.label+'</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">'+v.sub+'</div></div>';
+  }).join('');
+  el.querySelectorAll('.volpill').forEach(function(p){
+    p.addEventListener('click', function(){
+      selectedVolume = p.getAttribute('data-vol');
+      el.querySelectorAll('.volpill').forEach(function(x){ x.classList.remove('sel'); });
+      p.classList.add('sel');
+    });
+  });
+}
+
+function populateHours(){
+  var sel = document.getElementById('obshour');
+  var now = new Date();
+  var opts = '';
+  for(var h=0; h<24; h++){
+    var label = h===0?'12 AM':h<12?h+' AM':h===12?'12 PM':(h-12)+' PM';
+    opts += '<option value="'+h+'">'+label+'</option>';
+  }
+  sel.innerHTML = opts;
+  sel.value = now.getHours();
+}
+function setDefaultDate(){
+  var now = new Date();
+  var iso = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  document.getElementById('obsdate').value = iso;
+}
+
+function loadStations(){
+  return apiGet('getStations').then(function(res){
+    stationsCache = (res && res.ok && res.stations) ? res.stations : [];
+    stationsCache.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+    return stationsCache;
+  }).catch(function(){ return []; });
+}
+
+function renderStationSelect(){
+  var sel = document.getElementById('station');
+  sel.innerHTML = '<option value="">Loading stations...</option>';
+  loadStations().then(function(stations){
+    sel.innerHTML = '<option value="">Select a station...</option>' +
+      stations.map(function(s){
+        return '<option value="'+s.id+'">'+s.name+' \u2014 '+s.addr1+'</option>';
+      }).join('');
+  });
+}
+
+function renderStationList(){
+  var el = document.getElementById('station-list');
+  el.innerHTML = '<p class="muted"><span class="spin"></span> Loading...</p>';
+  loadStations().then(function(stations){
+    if(stations.length === 0){
+      el.innerHTML = '<p class="muted">No stations added yet.</p>';
+      return;
+    }
+    el.innerHTML = stations.map(function(s){
+      var crossText = [s.cross1, s.cross2].filter(Boolean).join(' and ');
+      return '<div class="stationrow">' +
+        '<div style="font-weight:600;">'+s.name+(s.brand ? ' <span class="muted" style="font-weight:400;">\u00b7 '+s.brand+'</span>' : '')+'</div>' +
+        '<div class="muted">'+s.addr1+', '+s.city+', '+s.state+' '+s.zip+'</div>' +
+        (crossText ? '<div class="muted" style="font-size:12px;">'+crossText+'</div>' : '') +
+      '</div>';
+    }).join('');
+  });
+}
+
+function renderHistory(){
+  var el = document.getElementById('history-list');
+  el.innerHTML = '<p class="muted"><span class="spin"></span> Loading...</p>';
+  apiGet('getObservations', {limit: 20}).then(function(res){
+    var obs = (res && res.ok && res.observations) ? res.observations : [];
+    if(obs.length === 0){
+      el.innerHTML = '<p class="muted">No submissions yet.</p>';
+      return;
+    }
+    el.innerHTML = obs.map(function(o){
+      return '<div class="histrow">' +
+        '<div style="font-weight:600;">'+(o.station_name || 'Unknown station')+'</div>' +
+        '<div class="muted">'+o.obs_date+' '+o.obs_hour_label+' \u00b7 '+o.username+'</div>' +
+        '<div class="muted">U '+fmtPrice(o.unleaded)+' \u00b7 M '+fmtPrice(o.mid)+' \u00b7 S '+fmtPrice(o.super)+' \u00b7 D '+fmtPrice(o.diesel)+' \u00b7 '+o.volume+'</div>' +
+      '</div>';
+    }).join('');
+  }).catch(function(){
+    el.innerHTML = '<p class="muted">Could not load history. Check connection.</p>';
+  });
+}
+
+function switchTab(name){
+  document.getElementById('panel-log').style.display = name==='log' ? 'block':'none';
+  document.getElementById('panel-stations').style.display = name==='stations' ? 'block':'none';
+  document.getElementById('panel-history').style.display = name==='history' ? 'block':'none';
+  document.querySelectorAll('.tabbtn').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === name);
+  });
+  if(name==='stations') renderStationList();
+  if(name==='history') renderHistory();
+  if(name==='log') renderStationSelect();
+}
+
+document.querySelectorAll('.tabbtn').forEach(function(btn){
+  btn.addEventListener('click', function(){ switchTab(btn.getAttribute('data-tab')); });
+});
+
+document.getElementById('resetallbtn').addEventListener('click', function(){
+  GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
+  renderPriceGrades();
+});
+
+function deriveCrossStreet(addr){
+  return addr.replace(/^\s*\d+[a-zA-Z]?\s+/, '').trim();
+}
+document.getElementById('st-addr1').addEventListener('input', function(e){
+  document.getElementById('st-cross1').value = deriveCrossStreet(e.target.value);
+});
+
+document.getElementById('addstationbtn').addEventListener('click', function(){
+  var name = document.getElementById('st-name').value.trim();
+  var brand = document.getElementById('st-brand').value.trim();
+  var addr1 = document.getElementById('st-addr1').value.trim();
+  var city = document.getElementById('st-city').value.trim();
+  var state = document.getElementById('st-state').value.trim();
+  var zip = document.getElementById('st-zip').value.trim();
+  var cross1 = document.getElementById('st-cross1').value.trim();
+  var cross2 = document.getElementById('st-cross2').value.trim();
+  var msg = document.getElementById('stationmsg');
+  var btn = document.getElementById('addstationbtn');
+
+  if(!name || !addr1 || !city || !state){
+    msg.textContent = 'Enter at least name, address, city, and state.';
+    msg.className = 'msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = 'Saving...';
+  msg.className = 'msg';
+
+  apiPost('addStation', {
+    station: {name:name, brand:brand, addr1:addr1, city:city, state:state, zip:zip, cross1:cross1, cross2:cross2}
+  }).then(function(res){
+    btn.disabled = false;
+    if(res && res.ok){
+      msg.textContent = 'Station added.';
+      msg.className = 'msg ok';
+      document.getElementById('st-name').value = '';
+      document.getElementById('st-brand').value = '';
+      document.getElementById('st-addr1').value = '';
+      document.getElementById('st-city').value = '';
+      document.getElementById('st-state').value = '';
+      document.getElementById('st-zip').value = '';
+      document.getElementById('st-cross1').value = '';
+      document.getElementById('st-cross2').value = '';
+      renderStationList();
+    } else {
+      msg.textContent = (res && res.error) ? res.error : 'Could not save station. Try again.';
+      msg.className = 'msg err';
+    }
+  }).catch(function(){
+    btn.disabled = false;
+    msg.textContent = 'Network error. Check connection and try again.';
+    msg.className = 'msg err';
+  });
+});
+
+document.getElementById('submitbtn').addEventListener('click', function(){
+  var msg = document.getElementById('submitmsg');
+  var btn = document.getElementById('submitbtn');
+  var username = document.getElementById('username').value.trim();
+  var stationSel = document.getElementById('station');
+  var stationId = stationSel.value;
+  var stationName = stationId ? stationSel.options[stationSel.selectedIndex].text : '';
+  var obsDate = document.getElementById('obsdate').value;
+  var obsHour = parseInt(document.getElementById('obshour').value);
+  var hourLabel = document.getElementById('obshour').options[document.getElementById('obshour').selectedIndex].text;
+
+  if(!username){ msg.textContent = 'Enter your name.'; msg.className = 'msg err'; return; }
+  if(!stationId){ msg.textContent = 'Select a station.'; msg.className = 'msg err'; return; }
+  if(!obsDate){ msg.textContent = 'Select a date.'; msg.className = 'msg err'; return; }
+  if(!selectedVolume){ msg.textContent = 'Select a traffic volume.'; msg.className = 'msg err'; return; }
+
+  var record = {
+    username: username,
+    station_id: stationId,
+    station_name: stationName,
+    obs_date: obsDate,
+    obs_hour: obsHour,
+    obs_hour_label: hourLabel,
+    unleaded: priceValue('unleaded'),
+    mid: priceValue('mid'),
+    super: priceValue('super'),
+    diesel: priceValue('diesel'),
+    volume: selectedVolume
+  };
+
+  btn.disabled = true;
+  msg.textContent = 'Submitting...';
+  msg.className = 'msg';
+
+  apiPost('addObservation', {observation: record}).then(function(res){
+    btn.disabled = false;
+    if(res && res.ok){
+      msg.textContent = 'Observation submitted.';
+      msg.className = 'msg ok';
+      GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
+      renderPriceGrades();
+      selectedVolume = null;
+      document.querySelectorAll('.volpill').forEach(function(x){ x.classList.remove('sel'); });
+    } else {
+      msg.textContent = (res && res.error) ? res.error : 'Submit failed. Try again.';
+      msg.className = 'msg err';
+    }
+  }).catch(function(){
+    btn.disabled = false;
+    msg.textContent = 'Network error. Check connection and try again.';
+    msg.className = 'msg err';
+  });
+});
+
+populateHours();
+setDefaultDate();
+renderPriceGrades();
+renderVolumePills();
+renderStationSelect();
+</script>
+</body>
+</html>
