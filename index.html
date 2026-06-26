@@ -14,25 +14,17 @@
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; padding:10px 12px 68px; background:var(--bg); color:var(--text);
+    margin:0; padding:10px 12px 16px; background:var(--bg); color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-size:15px; line-height:1.4;
   }
   .wrap{max-width:420px;margin:0 auto;}
   h1{font-size:17px;font-weight:700;margin:0 0 10px;color:var(--btn-primary);}
 
-  /* bottom tab bar */
-  .tabs{
-    position:fixed;bottom:0;left:0;right:0;
-    display:flex;background:#fff;border-top:1px solid var(--border);
-    z-index:100;padding-bottom:env(safe-area-inset-bottom);
-  }
-  .tabbtn{
-    flex:1;background:none;border:none;border-top:2px solid transparent;
-    padding:8px 0 6px;font-size:12px;font-weight:600;color:var(--text-muted);
-    cursor:pointer;touch-action:manipulation;
-  }
-  .tabbtn.active{border-top-color:var(--tab-active);color:var(--tab-active);}
+  .footnav{text-align:center;padding:14px 0 20px;font-size:13px;color:var(--text-muted);}
+  .footnav a{color:var(--text-secondary);text-decoration:none;font-weight:600;padding:0 6px;}
+  .footnav a.active{color:var(--tab-active);}
+  .footnav a:hover{text-decoration:underline;}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:10px;
     padding:12px;margin-bottom:8px;}
@@ -59,8 +51,7 @@
   }
   .digitBtn:active{background:var(--accent-bg);}
   .digitVal{font-size:22px;font-weight:700;font-family:ui-monospace,monospace;width:38px;text-align:center;}
-  .sep{font-size:22px;font-weight:600;color:var(--text-muted);align-self:center;margin-top:32px;}
-  .dollarSign{font-size:16px;color:var(--text-muted);align-self:center;margin-top:36px;margin-right:2px;}
+  .sep{font-size:22px;font-weight:600;color:var(--text-muted);align-self:center;}
 
   /* cash/credit toggle */
   .ccToggle{display:flex;border:1px solid var(--border-strong);border-radius:6px;overflow:hidden;}
@@ -87,7 +78,6 @@
   .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border-strong);
     border-top-color:var(--text);border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;}
   @keyframes sp{to{transform:rotate(360deg);}}
-  .date-display{font-size:11px;color:var(--text-muted);margin-top:3px;text-align:center;}
 </style>
 </head>
 <body>
@@ -106,7 +96,6 @@
         <input type="date" id="obsdate" style="flex:1;">
         <select id="obshour" style="flex:1;"></select>
       </div>
-      <div class="date-display" id="date-display"></div>
     </div>
 
     <div class="card">
@@ -195,14 +184,14 @@
     <label class="lbl" style="margin-bottom:6px;display:block;">Last 20 submissions</label>
     <div id="history-list"><p class="muted">Loading...</p></div>
   </div>
+
+  <div class="footnav">
+    <a href="#" class="active" data-tab="log">Log price</a> ·
+    <a href="#" data-tab="stations">Stations 📍</a> ·
+    <a href="#" data-tab="history">Recent</a>
+  </div>
 </div>
 
-<!-- bottom tab bar -->
-<div class="tabs">
-  <button class="tabbtn active" data-tab="log">Log price</button>
-  <button class="tabbtn" data-tab="stations">Stations 📍</button>
-  <button class="tabbtn" data-tab="history">Recent</button>
-</div>
 
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbzMmI5nedSYT57NZmPE2BKR_cQDoKc5FoBhKzzy1jUwqSnzhewvPy8MXiWqk3SIETszZQ/exec';
@@ -288,7 +277,7 @@ function renderPriceGrades(){
         headerRight +
       '</div>' +
       '<div class="digitCols">' +
-        '<span class="dollarSign">$</span>' +
+        '<span style="font-size:16px;color:var(--text-muted);align-self:center;margin-right:2px;">$</span>' +
         '<div class="digitCol">' +
           '<button class="digitBtn" data-part="dollar" data-dir="1">+</button>' +
           '<span class="digitVal" data-part="dollar">'+p.dollar+'</span>' +
@@ -359,7 +348,6 @@ function setDefaultDate(){
   var now = new Date();
   defaultDateISO = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   document.getElementById('obsdate').value = defaultDateISO;
-  document.getElementById('date-display').textContent = fmtDateDisplay(defaultDateISO);
 }
 
 document.getElementById('obsdate').addEventListener('change', function(){
@@ -368,10 +356,8 @@ document.getElementById('obsdate').addEventListener('change', function(){
   if(isFuture(dateVal, hourVal)){
     alert('Cannot log a future date/time. Please observe and record at the time of visit.');
     this.value = defaultDateISO;
-    document.getElementById('date-display').textContent = fmtDateDisplay(defaultDateISO);
     return;
   }
-  document.getElementById('date-display').textContent = fmtDateDisplay(dateVal);
   if(dateVal !== defaultDateISO){
     alert('Please record future entries at time of observation.');
   }
@@ -488,16 +474,19 @@ function switchTab(name){
   ['log','stations','history'].forEach(function(t){
     document.getElementById('panel-'+t).style.display = t===name?'block':'none';
   });
-  document.querySelectorAll('.tabbtn').forEach(function(btn){
-    btn.classList.toggle('active', btn.getAttribute('data-tab')===name);
+  document.querySelectorAll('.footnav a[data-tab]').forEach(function(a){
+    a.classList.toggle('active', a.getAttribute('data-tab')===name);
   });
   if(name==='stations') renderStationList();
   if(name==='history') renderHistory();
   if(name==='log') renderStationSelect();
 }
 
-document.querySelectorAll('.tabbtn').forEach(function(btn){
-  btn.addEventListener('click', function(){ switchTab(btn.getAttribute('data-tab')); });
+document.querySelectorAll('.footnav a[data-tab]').forEach(function(a){
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    switchTab(a.getAttribute('data-tab'));
+  });
 });
 
 document.getElementById('resetallbtn').addEventListener('click', function(){
