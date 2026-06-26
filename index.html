@@ -6,77 +6,98 @@
 <title>Fuel price log</title>
 <style>
   :root{
-    --bg:#f4f3ef; --card:#ffffff; --border:#e0ddd3; --border-strong:#c9c5b8;
-    --text:#1f1e1b; --text-secondary:#5f5e58; --text-muted:#8c897e;
-    --accent-bg:#e6f1fb; --accent-border:#85b7eb; --accent-text:#0c447c;
-    --danger:#a32d2d; --success:#3b6d11; --radius:8px;
+    --bg:#edf2fb; --card:#ffffff; --border:#c0cce8; --border-strong:#92a8d0;
+    --text:#18223a; --text-secondary:#485578; --text-muted:#7888aa;
+    --accent-bg:#dce8fb; --accent-border:#6090d0; --accent-text:#1a4080;
+    --tab-active:#c0302a; --btn-primary:#1a3a7a;
+    --danger:#c0302a; --success:#2a6a10; --radius:8px;
   }
   *{box-sizing:border-box;}
   body{
-    touch-action:manipulation;
-    margin:0; padding:12px; background:var(--bg); color:var(--text);
+    margin:0; padding:10px 12px 68px; background:var(--bg); color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:16px; line-height:1.4;
+    font-size:15px; line-height:1.4;
   }
   .wrap{max-width:420px;margin:0 auto;}
-  h1{font-size:17px;font-weight:600;margin:0 0 10px;}
+  h1{font-size:17px;font-weight:700;margin:0 0 10px;color:var(--btn-primary);}
+
+  /* bottom tab bar */
+  .tabs{
+    position:fixed;bottom:0;left:0;right:0;
+    display:flex;background:#fff;border-top:1px solid var(--border);
+    z-index:100;padding-bottom:env(safe-area-inset-bottom);
+  }
+  .tabbtn{
+    flex:1;background:none;border:none;border-top:2px solid transparent;
+    padding:8px 0 6px;font-size:12px;font-weight:600;color:var(--text-muted);
+    cursor:pointer;touch-action:manipulation;
+  }
+  .tabbtn.active{border-top-color:var(--tab-active);color:var(--tab-active);}
+
   .card{background:var(--card);border:1px solid var(--border);border-radius:10px;
     padding:12px;margin-bottom:8px;}
-  label.lbl{display:block;font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
-  .optTag{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px;}
+  label.lbl{display:block;font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:5px;}
+  .optTag{font-size:10px;color:var(--text-muted);font-weight:400;margin-left:4px;}
   input[type=text], input[type=date], select, textarea{
-    width:100%;height:38px;padding:0 10px;border:1px solid var(--border-strong);
-    border-radius:var(--radius);background:#fff;color:var(--text);font-size:16px;
+    width:100%;height:38px;padding:0 9px;border:1px solid var(--border-strong);
+    border-radius:var(--radius);background:#fff;color:var(--text);font-size:15px;
     -webkit-appearance:none; appearance:none;
   }
-  input:disabled, select:disabled{background:#f0efe9;color:var(--text-muted);}
-  .row{display:flex;gap:6px;}
+  input:disabled{background:#f0f3fa;color:var(--text-muted);}
+  .row{display:flex;gap:8px;}
   .gradeBlock{padding:10px 0;border-bottom:1px solid var(--border);}
   .gradeBlock:first-child{padding-top:0;}
-  .gradeBlock:last-child{border-bottom:none;}
-  .gradeName{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .gradeBlock:last-child{border-bottom:none;padding-bottom:0;}
+  .gradeHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .gradeName{font-size:13px;font-weight:600;color:var(--text);}
   .digitCols{display:flex;align-items:center;justify-content:center;gap:2px;}
-  .digitCol{display:flex;flex-direction:column;align-items:center;gap:4px;width:48px;}
-  .digitBtn{width:40px;height:32px;border-radius:var(--radius);border:1px solid var(--border-strong);
-    touch-action:manipulation;
-    background:#fafaf7;font-size:17px;font-weight:600;cursor:pointer;color:var(--text);}
+  .digitCol{display:flex;flex-direction:column;align-items:center;gap:4px;width:44px;}
+  .digitBtn{
+    width:38px;height:32px;border-radius:var(--radius);border:1px solid var(--border-strong);
+    background:#f5f8ff;font-size:17px;font-weight:600;cursor:pointer;color:var(--text);
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  }
   .digitBtn:active{background:var(--accent-bg);}
-  .digitVal{font-size:24px;font-weight:600;font-family:ui-monospace,monospace;width:40px;text-align:center;}
-  .sep{font-size:24px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;align-self:stretch;}
-  .dollarSign{font-size:17px;color:var(--text-muted);display:flex;align-items:center;align-self:stretch;margin-right:2px;}
+  .digitVal{font-size:22px;font-weight:700;font-family:ui-monospace,monospace;width:38px;text-align:center;}
+  .sep{font-size:22px;font-weight:600;color:var(--text-muted);align-self:center;margin-top:32px;}
+  .dollarSign{font-size:16px;color:var(--text-muted);align-self:center;margin-top:36px;margin-right:2px;}
+
+  /* cash/credit toggle */
+  .ccToggle{display:flex;border:1px solid var(--border-strong);border-radius:6px;overflow:hidden;}
+  .ccBtn{
+    flex:1;padding:3px 7px;font-size:11px;font-weight:600;border:none;
+    background:#f5f8ff;color:var(--text-muted);cursor:pointer;touch-action:manipulation;
+  }
+  .ccBtn.sel{background:var(--accent-bg);color:var(--accent-text);}
+
   .volpill{flex:1;padding:8px 4px;text-align:center;border:1px solid var(--border-strong);
-    touch-action:manipulation;
-    border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;background:#fff;
-    user-select:none;}
+    border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;background:#fff;
+    touch-action:manipulation;}
   .volpill.sel{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent-text);}
-  .smallbtn{font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:2px 4px;}
-  .bigbtn{width:100%;background:var(--text);color:#fff;border:none;padding:12px;
-    font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;}
+  .smallbtn{font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:2px 4px;touch-action:manipulation;}
+  .bigbtn{width:100%;background:var(--btn-primary);color:#fff;border:none;padding:12px;
+    font-size:15px;font-weight:600;border-radius:var(--radius);cursor:pointer;touch-action:manipulation;}
   .bigbtn:disabled{opacity:0.5;}
-  .linkbtn{display:block;width:100%;text-align:center;background:none;border:none;
-    color:var(--text-secondary);font-size:14px;font-weight:600;padding:10px 0;cursor:pointer;
-    text-decoration:underline;}
-  .msg{text-align:center;font-size:13px;margin-top:8px;min-height:16px;}
+  .msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;}
   .msg.err{color:var(--danger);}
   .msg.ok{color:var(--success);}
   .stationrow, .histrow{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
   .stationrow:last-child, .histrow:last-child{border-bottom:none;}
   .muted{color:var(--text-muted);}
-  .footlinks{display:flex;justify-content:center;gap:16px;margin-top:4px;}
-  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border-strong);
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border-strong);
     border-top-color:var(--text);border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;}
   @keyframes sp{to{transform:rotate(360deg);}}
+  .date-display{font-size:11px;color:var(--text-muted);margin-top:3px;text-align:center;}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <h1>⛽ Fuel Price Log</h1>
 
-  <div id="page-log">
-    <h1>Fuel price log</h1>
-
+  <div id="panel-log">
     <div class="card">
       <label class="lbl">Your name</label>
-      <input type="text" id="username" placeholder="e.g. jsmith" autocomplete="name">
+      <input type="text" id="username" placeholder="e.g. John Smith" autocomplete="name">
     </div>
 
     <div class="card">
@@ -85,56 +106,45 @@
         <input type="date" id="obsdate" style="flex:1;">
         <select id="obshour" style="flex:1;"></select>
       </div>
+      <div class="date-display" id="date-display"></div>
     </div>
 
     <div class="card">
       <label class="lbl">Zone</label>
-      <select id="zone" style="margin-bottom:8px;">
-        <option value="">Select a zone...</option>
+      <select id="zone" style="width:100%;margin-bottom:8px;">
+        <option value="">Loading zones...</option>
       </select>
-      <label class="lbl">Station</label>
-      <select id="station">
-        <option value="">Loading stations...</option>
+      <label class="lbl">Station 🗺️</label>
+      <select id="station" style="width:100%;">
+        <option value="">Select a zone first...</option>
       </select>
-      <p style="font-size:12px;color:var(--text-muted);margin:6px 0 0;">Don't see it? Add it on the stations page.</p>
+      <p style="font-size:11px;color:var(--text-muted);margin:4px 0 0;">Don't see it? Add it in the Stations tab.</p>
     </div>
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <label class="lbl" style="margin:0;">Prices</label>
+        <label class="lbl" style="margin:0;">Prices 💵</label>
         <button class="smallbtn" id="resetallbtn">Reset all</button>
       </div>
       <div id="price-grades"></div>
     </div>
 
     <div class="card">
-      <label class="lbl">Traffic volume</label>
+      <label class="lbl">Traffic volume 🚗 <span class="optTag">optional</span></label>
       <div id="volume-pills" class="row"></div>
     </div>
 
-    <button class="bigbtn" id="submitbtn">Submit observation</button>
+    <button class="bigbtn" id="submitbtn">Submit observation ☀️</button>
     <p class="msg" id="submitmsg"></p>
-
-    <button class="linkbtn" id="gotostations">Add a new station</button>
-    <div class="footlinks">
-      <button class="smallbtn" id="gotohistory">Recent submissions</button>
-    </div>
   </div>
 
-  <div id="page-stations" style="display:none;">
-    <h1>Station</h1>
+  <div id="panel-stations" style="display:none;">
     <div class="card">
-      <label class="lbl">Name</label>
+      <label class="lbl">Station name</label>
       <input type="text" id="st-name" placeholder="e.g. Terrible's" style="margin-bottom:8px;">
 
       <label class="lbl">Fuel brand <span class="optTag">optional</span></label>
       <input type="text" id="st-brand" placeholder="e.g. Chevron" style="margin-bottom:8px;">
-
-      <label class="lbl">Zone</label>
-      <select id="st-zone" style="margin-bottom:10px;">
-        <option value="">Select a zone...</option>
-        <option value="No Zone">No Zone</option>
-      </select>
 
       <label class="lbl">Address</label>
       <input type="text" id="st-addr1" placeholder="e.g. 4503 Paradise Rd" style="margin-bottom:8px;">
@@ -147,50 +157,75 @@
 
       <label class="lbl">Cross streets</label>
       <input type="text" id="st-cross1" placeholder="Street 1" disabled style="margin-bottom:8px;">
-      <input type="text" id="st-cross2" placeholder="Street 2 (optional)" style="margin-bottom:10px;">
+      <input type="text" id="st-cross2" placeholder="Street 2 (optional)" style="margin-bottom:8px;">
+
+      <label class="lbl">Zone <span class="optTag">optional</span></label>
+      <select id="st-zone" style="margin-bottom:12px;">
+        <option value="">No Zone</option>
+        <option value="1">Zone 1</option>
+        <option value="2">Zone 2</option>
+        <option value="3">Zone 3</option>
+        <option value="4">Zone 4</option>
+        <option value="5">Zone 5</option>
+        <option value="6">Zone 6</option>
+        <option value="7">Zone 7</option>
+        <option value="8">Zone 8</option>
+        <option value="9">Zone 9</option>
+        <option value="10">Zone 10</option>
+        <option value="11">Zone 11</option>
+        <option value="12">Zone 12</option>
+        <option value="13">Zone 13</option>
+        <option value="14">Zone 14</option>
+        <option value="15">Zone 15</option>
+        <option value="16">Zone 16</option>
+        <option value="17">Zone 17</option>
+        <option value="18">Zone 18</option>
+        <option value="19">Zone 19</option>
+        <option value="20">Zone 20</option>
+      </select>
 
       <button class="bigbtn" id="addstationbtn">Add station</button>
       <p class="msg" id="stationmsg"></p>
     </div>
-
-    <button class="linkbtn" id="backtolog1">Back to log price</button>
-
-    <label class="lbl" style="margin-bottom:8px;display:block;">Name</label>
+    <label class="lbl" style="margin-bottom:6px;display:block;">Existing stations</label>
     <div id="station-list"><p class="muted">Loading...</p></div>
   </div>
 
-  <div id="page-history" style="display:none;">
-    <h1>Recent submissions</h1>
+  <div id="panel-history" style="display:none;">
+    <label class="lbl" style="margin-bottom:6px;display:block;">Last 20 submissions</label>
     <div id="history-list"><p class="muted">Loading...</p></div>
-    <button class="linkbtn" id="backtolog2">Back to log price</button>
   </div>
+</div>
 
+<!-- bottom tab bar -->
+<div class="tabs">
+  <button class="tabbtn active" data-tab="log">Log price</button>
+  <button class="tabbtn" data-tab="stations">Stations 📍</button>
+  <button class="tabbtn" data-tab="history">Recent</button>
 </div>
 
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbzMmI5nedSYT57NZmPE2BKR_cQDoKc5FoBhKzzy1jUwqSnzhewvPy8MXiWqk3SIETszZQ/exec';
 
-var ZONE_COUNT = 20;
-var ZONES = [];
-for (var zi = 1; zi <= ZONE_COUNT; zi++) ZONES.push('Zone ' + zi);
-
 var GRADES = [
-  {key:'unleaded', label:'Unleaded'},
-  {key:'mid', label:'Mid'},
-  {key:'super', label:'Super'},
-  {key:'diesel', label:'Diesel'}
+  {key:'unleaded', label:'Regular Unleaded', optional:false, cashCredit:true},
+  {key:'diesel',   label:'Diesel',           optional:true,  cashCredit:false}
 ];
 var VOLUMES = [
-  {key:'light', label:'Light', sub:'0-3 cars'},
-  {key:'medium', label:'Medium', sub:'4-6 cars'},
-  {key:'high', label:'High', sub:'7+ cars'}
+  {key:'light',  label:'Light',  sub:'0–3'},
+  {key:'medium', label:'Medium', sub:'4–6'},
+  {key:'high',   label:'High',   sub:'7+'}
 ];
 
 var prices = {};
 GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
 var selectedVolume = null;
+var unleadedType = 'cash';
 var stationsCache = [];
-var stationsLoaded = false;
+
+var nowOnLoad = new Date();
+var defaultDateISO = '';
+var defaultHour = nowOnLoad.getHours();
 
 function rollover(v){
   if(v > 9) return 0;
@@ -203,25 +238,34 @@ function priceValue(g){
 }
 function fmtPrice(v){
   var n = parseFloat(v);
-  if(isNaN(n)) return '$0.00';
+  if(isNaN(n) || n === 0) return '—';
   return '$' + n.toFixed(2);
+}
+function fmtDateDisplay(isoDate){
+  if(!isoDate) return '';
+  var d = new Date(isoDate + 'T12:00:00');
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return days[d.getDay()] + ' ' + (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(-2);
+}
+
+function isFuture(dateISO, hour){
+  var now = new Date();
+  var sel = new Date(dateISO + 'T' + String(hour).padStart(2,'0') + ':00:00');
+  return sel > now;
 }
 
 function apiGet(action, params){
   var url = API_URL + '?action=' + encodeURIComponent(action);
-  if(params){
-    Object.keys(params).forEach(function(k){
-      url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-    });
-  }
+  if(params) Object.keys(params).forEach(function(k){
+    url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  });
   return fetch(url).then(function(r){ return r.json(); });
 }
 function apiPost(action, payload){
   var body = Object.assign({action: action}, payload);
   return fetch(API_URL, {
-    method: 'POST',
-    headers: {'Content-Type': 'text/plain;charset=utf-8'},
-    body: JSON.stringify(body)
+    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(body)
   }).then(function(r){ return r.json(); });
 }
 
@@ -229,9 +273,20 @@ function renderPriceGrades(){
   var el = document.getElementById('price-grades');
   el.innerHTML = GRADES.map(function(g){
     var p = prices[g.key];
-    return '' +
-    '<div class="gradeBlock" data-grade="'+g.key+'">' +
-      '<div class="gradeName">'+g.label+'</div>' +
+    var headerRight = '';
+    if(g.cashCredit){
+      headerRight = '<div class="ccToggle">' +
+        '<button class="ccBtn'+(unleadedType==='cash'?' sel':'')+'" data-cc="cash">Cash</button>' +
+        '<button class="ccBtn'+(unleadedType==='credit'?' sel':'')+'" data-cc="credit">Credit</button>' +
+        '</div>';
+    } else if(g.optional){
+      headerRight = '<span class="optTag" style="font-size:11px;">optional</span>';
+    }
+    return '<div class="gradeBlock" data-grade="'+g.key+'">' +
+      '<div class="gradeHeader">' +
+        '<span class="gradeName">'+g.label+'</span>' +
+        headerRight +
+      '</div>' +
       '<div class="digitCols">' +
         '<span class="dollarSign">$</span>' +
         '<div class="digitCol">' +
@@ -264,101 +319,146 @@ function renderPriceGrades(){
       block.querySelector('.digitVal[data-part="'+part+'"]').textContent = prices[grade][part];
     });
   });
+  el.querySelectorAll('.ccBtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      unleadedType = btn.getAttribute('data-cc');
+      el.querySelectorAll('.ccBtn').forEach(function(b){ b.classList.remove('sel'); });
+      btn.classList.add('sel');
+    });
+  });
 }
 
 function renderVolumePills(){
   var el = document.getElementById('volume-pills');
   el.innerHTML = VOLUMES.map(function(v){
-    return '<div class="volpill" data-vol="'+v.key+'"><div>'+v.label+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">'+v.sub+'</div></div>';
+    return '<div class="volpill" data-vol="'+v.key+'">' +
+      '<div>'+v.label+'</div>' +
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;">'+v.sub+' cars</div></div>';
   }).join('');
   el.querySelectorAll('.volpill').forEach(function(p){
     p.addEventListener('click', function(){
-      var vol = p.getAttribute('data-vol');
-      if(selectedVolume === vol){
-        selectedVolume = null;
-        p.classList.remove('sel');
-      } else {
-        selectedVolume = vol;
-        el.querySelectorAll('.volpill').forEach(function(x){ x.classList.remove('sel'); });
-        p.classList.add('sel');
-      }
+      selectedVolume = p.getAttribute('data-vol');
+      el.querySelectorAll('.volpill').forEach(function(x){ x.classList.remove('sel'); });
+      p.classList.add('sel');
     });
   });
 }
 
 function populateHours(){
   var sel = document.getElementById('obshour');
-  var now = new Date();
   var opts = '';
   for(var h=0; h<24; h++){
     var label = h===0?'12 AM':h<12?h+' AM':h===12?'12 PM':(h-12)+' PM';
     opts += '<option value="'+h+'">'+label+'</option>';
   }
   sel.innerHTML = opts;
-  sel.value = now.getHours();
+  sel.value = defaultHour;
 }
+
 function setDefaultDate(){
   var now = new Date();
-  var iso = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-  document.getElementById('obsdate').value = iso;
+  defaultDateISO = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  document.getElementById('obsdate').value = defaultDateISO;
+  document.getElementById('date-display').textContent = fmtDateDisplay(defaultDateISO);
 }
 
-function populateZoneSelects(){
-  var opts = ZONES.map(function(z){ return '<option value="'+z+'">'+z+'</option>'; }).join('');
-  document.getElementById('zone').innerHTML = '<option value="">Select a zone...</option>' + opts;
-  document.getElementById('st-zone').innerHTML = '<option value="">Select a zone...</option>' + opts + '<option value="No Zone">No Zone</option>';
-}
+document.getElementById('obsdate').addEventListener('change', function(){
+  var dateVal = this.value;
+  var hourVal = parseInt(document.getElementById('obshour').value);
+  if(isFuture(dateVal, hourVal)){
+    alert('Cannot log a future date/time. Please observe and record at the time of visit.');
+    this.value = defaultDateISO;
+    document.getElementById('date-display').textContent = fmtDateDisplay(defaultDateISO);
+    return;
+  }
+  document.getElementById('date-display').textContent = fmtDateDisplay(dateVal);
+  if(dateVal !== defaultDateISO){
+    alert('Please record future entries at time of observation.');
+  }
+});
 
-function loadStations(force){
-  if(stationsLoaded && !force) return Promise.resolve(stationsCache);
+document.getElementById('obshour').addEventListener('change', function(){
+  var dateVal = document.getElementById('obsdate').value;
+  var hourVal = parseInt(this.value);
+  if(isFuture(dateVal, hourVal)){
+    alert('Cannot log a future time. Please observe and record at the time of visit.');
+    this.value = defaultHour;
+    return;
+  }
+  if(hourVal !== defaultHour){
+    alert('Please record future entries at time of observation.');
+  }
+});
+
+function loadStations(){
   return apiGet('getStations').then(function(res){
     stationsCache = (res && res.ok && res.stations) ? res.stations : [];
     stationsCache.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
-    stationsLoaded = true;
     return stationsCache;
   }).catch(function(){ return []; });
 }
 
-function updateStationOptionsForZone(){
+var NO_ZONE_KEY = '__nozone__';
+
+function getZones(stations){
+  var seen = {}; var zones = [];
+  stations.forEach(function(s){
+    var z = (s.zone||'').trim();
+    var key = z || NO_ZONE_KEY;
+    if(!seen[key]){ seen[key]=true; zones.push(z); }
+  });
+  zones.sort(function(a,b){
+    if(!a) return 1; if(!b) return -1; return a.localeCompare(b);
+  });
+  return zones;
+}
+
+function renderZoneSelect(stations){
+  var zones = getZones(stations);
+  var sel = document.getElementById('zone');
+  sel.innerHTML = '<option value="">All zones</option>' +
+    zones.map(function(z){
+      return '<option value="'+(z||NO_ZONE_KEY)+'">'+(z||'No Zone')+'</option>';
+    }).join('');
+}
+
+function filterAndRenderStations(stations, zoneVal){
+  var filtered = stations;
+  if(zoneVal===NO_ZONE_KEY) filtered = stations.filter(function(s){ return !(s.zone||'').trim(); });
+  else if(zoneVal) filtered = stations.filter(function(s){ return (s.zone||'').trim()===zoneVal; });
+  var sel = document.getElementById('station');
+  sel.innerHTML = '<option value="">Select a station...</option>' +
+    filtered.map(function(s){
+      return '<option value="'+s.id+'">'+s.name+' — '+s.addr1+'</option>';
+    }).join('');
+}
+
+function renderStationSelect(){
   var zoneSel = document.getElementById('zone');
-  var stationSel = document.getElementById('station');
-  var zone = zoneSel.value;
-
-  stationSel.disabled = true;
-  stationSel.innerHTML = '<option value="">Loading stations...</option>';
-
+  zoneSel.innerHTML = '<option value="">Loading zones...</option>';
+  document.getElementById('station').innerHTML = '<option value="">Loading...</option>';
   loadStations().then(function(stations){
-    var visible = zone ? stations.filter(function(s){ return s.zone === zone; }) : stations;
-    stationSel.disabled = false;
-    if(visible.length === 0){
-      stationSel.innerHTML = '<option value="">' + (zone ? 'No stations in this zone yet' : 'No stations added yet') + '</option>';
-      return;
-    }
-    stationSel.innerHTML = '<option value="">Select a station...</option>' +
-      visible.map(function(s){
-        return '<option value="'+s.id+'">'+s.name+' \u2014 '+s.addr1+'</option>';
-      }).join('');
+    renderZoneSelect(stations);
+    filterAndRenderStations(stations, '');
   });
 }
 
-document.getElementById('zone').addEventListener('change', updateStationOptionsForZone);
+document.getElementById('zone').addEventListener('change', function(){
+  filterAndRenderStations(stationsCache, this.value);
+});
 
 function renderStationList(){
   var el = document.getElementById('station-list');
   el.innerHTML = '<p class="muted"><span class="spin"></span> Loading...</p>';
-  loadStations(true).then(function(stations){
-    if(stations.length === 0){
-      el.innerHTML = '<p class="muted">No stations added yet.</p>';
-      return;
-    }
+  loadStations().then(function(stations){
+    if(!stations.length){ el.innerHTML = '<p class="muted">No stations added yet.</p>'; return; }
     el.innerHTML = stations.map(function(s){
-      var crossText = [s.cross1, s.cross2].filter(Boolean).join(' and ');
+      var cross = [s.cross1,s.cross2].filter(Boolean).join(' and ');
+      var zone = (s.zone||'').trim() || 'No Zone';
       return '<div class="stationrow">' +
-        '<div style="font-weight:600;">'+s.name+(s.brand ? ' <span class="muted" style="font-weight:400;">\u00b7 '+s.brand+'</span>' : '')+
-          (s.zone ? ' <span class="muted" style="font-weight:400;">\u00b7 '+s.zone+'</span>' : '')+'</div>' +
+        '<div style="font-weight:600;">'+s.name+(s.brand?' <span class="muted">· '+s.brand+'</span>':'')+'</div>' +
         '<div class="muted">'+s.addr1+', '+s.city+', '+s.state+' '+s.zip+'</div>' +
-        (crossText ? '<div class="muted" style="font-size:12px;">'+crossText+'</div>' : '') +
+        '<div class="muted" style="font-size:11px;">Zone: '+zone+(cross?' · '+cross:'')+'</div>' +
       '</div>';
     }).join('');
   });
@@ -367,102 +467,82 @@ function renderStationList(){
 function renderHistory(){
   var el = document.getElementById('history-list');
   el.innerHTML = '<p class="muted"><span class="spin"></span> Loading...</p>';
-  apiGet('getObservations', {limit: 20}).then(function(res){
-    var obs = (res && res.ok && res.observations) ? res.observations : [];
-    if(obs.length === 0){
-      el.innerHTML = '<p class="muted">No submissions yet.</p>';
-      return;
-    }
+  apiGet('getObservations',{limit:20}).then(function(res){
+    var obs = (res&&res.ok&&res.observations)?res.observations:[];
+    if(!obs.length){ el.innerHTML='<p class="muted">No submissions yet.</p>'; return; }
     el.innerHTML = obs.map(function(o){
+      var priceStr = 'Reg '+fmtPrice(o.unleaded);
+      if(o.unleaded_type) priceStr += ' ('+o.unleaded_type+')';
+      if(o.diesel&&parseFloat(o.diesel)>0) priceStr += ' · Diesel '+fmtPrice(o.diesel);
+      var vol = o.volume?' · '+o.volume:'';
       return '<div class="histrow">' +
-        '<div style="font-weight:600;">'+(o.station_name || 'Unknown station')+'</div>' +
-        '<div class="muted">'+o.obs_date+' '+o.obs_hour_label+' \u00b7 '+o.username+'</div>' +
-        '<div class="muted">U '+fmtPrice(o.unleaded)+' \u00b7 M '+fmtPrice(o.mid)+' \u00b7 S '+fmtPrice(o.super)+' \u00b7 D '+fmtPrice(o.diesel)+' \u00b7 '+o.volume+'</div>' +
+        '<div style="font-weight:600;">'+(o.station_name||'Unknown station')+'</div>' +
+        '<div class="muted">'+o.obs_date+' '+o.obs_hour_label+' · '+o.username+'</div>' +
+        '<div class="muted">'+priceStr+vol+'</div>' +
       '</div>';
     }).join('');
-  }).catch(function(){
-    el.innerHTML = '<p class="muted">Could not load history. Check connection.</p>';
-  });
+  }).catch(function(){ el.innerHTML='<p class="muted">Could not load history.</p>'; });
 }
 
-function showPage(name){
-  document.getElementById('page-log').style.display = name==='log' ? 'block':'none';
-  document.getElementById('page-stations').style.display = name==='stations' ? 'block':'none';
-  document.getElementById('page-history').style.display = name==='history' ? 'block':'none';
+function switchTab(name){
+  ['log','stations','history'].forEach(function(t){
+    document.getElementById('panel-'+t).style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tabbtn').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-tab')===name);
+  });
   if(name==='stations') renderStationList();
   if(name==='history') renderHistory();
+  if(name==='log') renderStationSelect();
 }
 
-document.getElementById('gotostations').addEventListener('click', function(){ showPage('stations'); });
-document.getElementById('gotohistory').addEventListener('click', function(){ showPage('history'); });
-document.getElementById('backtolog1').addEventListener('click', function(){ showPage('log'); });
-document.getElementById('backtolog2').addEventListener('click', function(){ showPage('log'); });
+document.querySelectorAll('.tabbtn').forEach(function(btn){
+  btn.addEventListener('click', function(){ switchTab(btn.getAttribute('data-tab')); });
+});
 
 document.getElementById('resetallbtn').addEventListener('click', function(){
-  GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
+  GRADES.forEach(function(g){ prices[g.key]={dollar:0,dime:0,cent:0}; });
   renderPriceGrades();
 });
 
-function deriveCrossStreet(addr){
-  return addr.replace(/^\s*\d+[a-zA-Z]?\s+/, '').trim();
-}
 document.getElementById('st-addr1').addEventListener('input', function(e){
-  document.getElementById('st-cross1').value = deriveCrossStreet(e.target.value);
+  document.getElementById('st-cross1').value = e.target.value.replace(/^\s*\d+[a-zA-Z]?\s+/,'').trim();
 });
 
 document.getElementById('addstationbtn').addEventListener('click', function(){
   var name = document.getElementById('st-name').value.trim();
   var brand = document.getElementById('st-brand').value.trim();
-  var zone = document.getElementById('st-zone').value;
   var addr1 = document.getElementById('st-addr1').value.trim();
   var city = document.getElementById('st-city').value.trim();
   var state = document.getElementById('st-state').value.trim();
   var zip = document.getElementById('st-zip').value.trim();
   var cross1 = document.getElementById('st-cross1').value.trim();
   var cross2 = document.getElementById('st-cross2').value.trim();
+  var zone = document.getElementById('st-zone').value;
   var msg = document.getElementById('stationmsg');
   var btn = document.getElementById('addstationbtn');
 
-  if(!name || !addr1 || !city || !state){
-    msg.textContent = 'Enter at least name, address, city, and state.';
-    msg.className = 'msg err';
-    return;
+  if(!name||!addr1||!city||!state){
+    msg.textContent='Enter at least name, address, city, and state.'; msg.className='msg err'; return;
   }
-  if(!zone){
-    msg.textContent = 'Select a zone (or "No Zone").';
-    msg.className = 'msg err';
-    return;
-  }
+  btn.disabled=true; msg.textContent='Saving...'; msg.className='msg';
 
-  btn.disabled = true;
-  msg.textContent = 'Saving...';
-  msg.className = 'msg';
-
-  apiPost('addStation', {
-    station: {name:name, brand:brand, zone:zone, addr1:addr1, city:city, state:state, zip:zip, cross1:cross1, cross2:cross2}
+  apiPost('addStation',{
+    station:{name,brand,addr1,city,state,zip,cross1,cross2,zone}
   }).then(function(res){
-    btn.disabled = false;
-    if(res && res.ok){
-      msg.textContent = 'Station added.';
-      msg.className = 'msg ok';
-      document.getElementById('st-name').value = '';
-      document.getElementById('st-brand').value = '';
-      document.getElementById('st-zone').value = '';
-      document.getElementById('st-addr1').value = '';
-      document.getElementById('st-city').value = '';
-      document.getElementById('st-state').value = '';
-      document.getElementById('st-zip').value = '';
-      document.getElementById('st-cross1').value = '';
-      document.getElementById('st-cross2').value = '';
+    btn.disabled=false;
+    if(res&&res.ok){
+      msg.textContent='Station added.'; msg.className='msg ok';
+      ['st-name','st-brand','st-addr1','st-city','st-state','st-zip','st-cross1','st-cross2'].forEach(function(id){
+        document.getElementById(id).value='';
+      });
+      document.getElementById('st-zone').value='';
       renderStationList();
     } else {
-      msg.textContent = (res && res.error) ? res.error : 'Could not save station. Try again.';
-      msg.className = 'msg err';
+      msg.textContent=(res&&res.error)||'Could not save station.'; msg.className='msg err';
     }
   }).catch(function(){
-    btn.disabled = false;
-    msg.textContent = 'Network error. Check connection and try again.';
-    msg.className = 'msg err';
+    btn.disabled=false; msg.textContent='Network error.'; msg.className='msg err';
   });
 });
 
@@ -477,55 +557,43 @@ document.getElementById('submitbtn').addEventListener('click', function(){
   var obsHour = parseInt(document.getElementById('obshour').value);
   var hourLabel = document.getElementById('obshour').options[document.getElementById('obshour').selectedIndex].text;
 
-  if(!username){ msg.textContent = 'Enter your name.'; msg.className = 'msg err'; return; }
-  if(!stationId){ msg.textContent = 'Select a zone and station.'; msg.className = 'msg err'; return; }
-  if(!obsDate){ msg.textContent = 'Select a date.'; msg.className = 'msg err'; return; }
-  if(!selectedVolume){ msg.textContent = 'Select a traffic volume.'; msg.className = 'msg err'; return; }
+  if(!username){ msg.textContent='Enter your name.'; msg.className='msg err'; return; }
+  if(!stationId){ msg.textContent='Select a station.'; msg.className='msg err'; return; }
+  if(!obsDate){ msg.textContent='Select a date.'; msg.className='msg err'; return; }
+  if(isFuture(obsDate, obsHour)){ msg.textContent='Cannot submit a future date/time.'; msg.className='msg err'; return; }
+  if(priceValue('unleaded')===0){ msg.textContent='Regular Unleaded price is required.'; msg.className='msg err'; return; }
 
   var record = {
-    username: username,
-    station_id: stationId,
-    station_name: stationName,
-    obs_date: obsDate,
-    obs_hour: obsHour,
-    obs_hour_label: hourLabel,
-    unleaded: priceValue('unleaded'),
-    mid: priceValue('mid'),
-    super: priceValue('super'),
-    diesel: priceValue('diesel'),
-    volume: selectedVolume
+    username, station_id:stationId, station_name:stationName,
+    obs_date:obsDate, obs_hour:obsHour, obs_hour_label:hourLabel,
+    unleaded:priceValue('unleaded'), unleaded_type:unleadedType,
+    mid:0, super:0, diesel:priceValue('diesel'),
+    volume:selectedVolume||''
   };
 
-  btn.disabled = true;
-  msg.textContent = 'Submitting...';
-  msg.className = 'msg';
+  btn.disabled=true; msg.textContent='Submitting...'; msg.className='msg';
 
-  apiPost('addObservation', {observation: record}).then(function(res){
-    btn.disabled = false;
-    if(res && res.ok){
-      msg.textContent = 'Observation submitted.';
-      msg.className = 'msg ok';
-      GRADES.forEach(function(g){ prices[g.key] = {dollar:0, dime:0, cent:0}; });
+  apiPost('addObservation',{observation:record}).then(function(res){
+    btn.disabled=false;
+    if(res&&res.ok){
+      msg.textContent='Observation submitted.'; msg.className='msg ok';
+      GRADES.forEach(function(g){ prices[g.key]={dollar:0,dime:0,cent:0}; });
       renderPriceGrades();
-      selectedVolume = null;
+      selectedVolume=null;
       document.querySelectorAll('.volpill').forEach(function(x){ x.classList.remove('sel'); });
     } else {
-      msg.textContent = (res && res.error) ? res.error : 'Submit failed. Try again.';
-      msg.className = 'msg err';
+      msg.textContent=(res&&res.error)||'Submit failed. Try again.'; msg.className='msg err';
     }
   }).catch(function(){
-    btn.disabled = false;
-    msg.textContent = 'Network error. Check connection and try again.';
-    msg.className = 'msg err';
+    btn.disabled=false; msg.textContent='Network error.'; msg.className='msg err';
   });
 });
 
 populateHours();
 setDefaultDate();
-populateZoneSelects();
 renderPriceGrades();
 renderVolumePills();
-updateStationOptionsForZone();
+renderStationSelect();
 </script>
 </body>
 </html>
