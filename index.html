@@ -378,15 +378,10 @@ function populateHours(){
   sel.value = defaultHour;
 }
 
-function setDateDisplay(isoDate){
-  document.getElementById('obsdate-display').textContent = fmtDateDisplay(isoDate);
-}
-
 function setDefaultDate(){
   var now = new Date();
   defaultDateISO = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   document.getElementById('obsdate').value = defaultDateISO;
-  setDateDisplay(defaultDateISO);
 }
 
 document.getElementById('obsdate').addEventListener('change', function(){
@@ -395,10 +390,8 @@ document.getElementById('obsdate').addEventListener('change', function(){
   if(isFuture(dateVal, hourVal)){
     alert('Cannot log a future date/time. Please observe and record at the time of visit.');
     this.value = defaultDateISO;
-    setDateDisplay(defaultDateISO);
     return;
   }
-  setDateDisplay(dateVal);
   if(dateVal !== defaultDateISO){
     alert('Please record future entries at time of observation.');
   }
